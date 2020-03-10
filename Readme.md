@@ -1,18 +1,42 @@
 # wsl-ssh-pageant
 
-A Pageant -> TCP bridge for use with WSL, allowing for Pageant to be used as an ssh-ageant within the WSL environment.
+## How to use with WSL
 
-![Demo](demo.gif?raw=True)
+1. On the Windows side run Pageant (or compatible agent such as gpg4win).
 
-## How to use
+2. Run `wsl-ssh-pageant.exe --wsl C:\wsl-ssh-pageant\ssh-agent.sock` (or any other path) on windows in a short path (max ~100 characters total!)
 
-1. On the Windows side run Pageant (or compatible agent) and `wsl-ssl-pageant.exe <port>`, if `port` isn't specified the default is `13000`
-
-2. In WSL run the following, where `13000` is the port set previously
+3. In WSL run the following
 
 ```
-$ while true; do socat UNIX-LISTEN:/tmp/wsl-ssh-pageant.socket,unlink-close,unlink-early TCP4:127.0.0.1:13000; done &
-$ export SSH_AUTH_SOCK=/tmp/wsl-ssh-pageant.socket
+$ export SSH_AUTH_SOCK=/mnt/your/path/to/ssh-agent.sock
+```
+For example, if you have `ssh-agent.sock` in `C:\wsl-ssh-pageant`
+```
+$ export SSH_AUTH_SOCK=/mnt/c/wsl-ssh-pageant/ssh-agent.sock
 ```
 
-3. The SSH keys from Pageant should now be usable by `ssh`!
+4. The SSH keys from Pageant should now be usable by `ssh`!
+
+## How to use with Windows 10 native OpenSSH client
+
+1. On the Windows side run Pageant (or compatible agent such as gpg4win).
+
+2. Run `wsl-ssh-pageant.exe --winssh ssh-pageant` (or any other name) on windows in a short path (max ~100 characters total!)
+
+3. In cmd.exe run the following (or define it in your Environment Variables on windows)
+
+```
+$ set SSH_AUTH_SOCK=\\.\pipe\ssh-pageant
+```
+(or whichever name you gave the pipe)
+
+4. The SSH keys from Pageant should now be usable by `ssh`!
+
+## Note
+
+You can use both `--winssh` and `--wsl` parameters at the same time with the same process to proxy for both
+
+## Credit
+
+Thanks to [John Starks](https://github.com/jstarks/) for [npiperelay](https://github.com/jstarks/npiperelay/), showing a more secure way to create a stream between WSL and Linux.
